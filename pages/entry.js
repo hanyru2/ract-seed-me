@@ -1,6 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 import Head from 'next/head'
 import { compose } from 'recompose'
+import { connect } from 'react-redux'
 
 import { graphql, withApollo } from 'react-apollo'
 import gql from 'graphql-tag'
@@ -8,25 +9,23 @@ import gql from 'graphql-tag'
 import withPreloader from '../hocs/withPreloader'
 import page from '../hocs/page'
 
-import store from '../redux/store/SukiStore'
 import calculateRating from '../utils/calculateRating'
-import NotisMessage from './NotisMessage'
+// import NotisMessage from './NotisMessage'
 
 import MainStyle from './MainStyle'
 
-function EntryPage({ data, text_comment, handleAddOrder, handleAddComment, handleCommentChanged, handleRatting }) {
+function EntryPage({ data, /* notis, */ text_comment, handleAddOrder, handleAddComment, handleCommentChanged, handleRatting }) {
   const { menu_item } = data
 
   const img_src = "/static/images/menus/" + menu_item.images
   const rating = calculateRating(menu_item.rating)
-  const notis = store.getState().notis
 
   return (
     <div>
       <Head>
         <title>{menu_item.name}</title>
       </Head>
-      {notis.length > 0 && <NotisMessage notis={notis} />}
+      {/* {notis.length > 0 && <NotisMessage notis={notis} />} */}
       <div className="suki__item">
         <div className="categories__item">
           <div className="item__img__box">
@@ -48,10 +47,10 @@ function EntryPage({ data, text_comment, handleAddOrder, handleAddComment, handl
             <textarea onChange={handleCommentChanged.bind(this)} value={text_comment}></textarea>
             <button className="btn__add__comment" value={menu_item.id} onClick={handleAddComment.bind(this)}>Add Comment</button>
             <br /><br />
-            {/* <div>
+            <div>
               <span>Set Rating : </span>
               <button onClick={handleRatting.bind(this)} value="one">1</button><button onClick={handleRatting.bind(this)} value="two">2</button><button onClick={handleRatting.bind(this)} value="three">3</button><button onClick={handleRatting.bind(this)} value="four">4</button><button onClick={handleRatting.bind(this)} value="five">5</button>
-            </div> */}
+            </div>
           </div>
         </div>
         <div className="menu__order">
@@ -93,7 +92,7 @@ class entryContainer extends React.Component {
   handleAddOrder() {
     const menu = this.props.data.menu_item
 
-    store.dispatch({
+    this.props.dispatch({
       type: 'ADD_ORDER',
       data: {
         id: new Date().getTime(),
@@ -104,7 +103,7 @@ class entryContainer extends React.Component {
       }
     })
 
-    store.dispatch({
+    this.props.dispatch({
       type: 'ADD_NOTI',
       notis: [
         {
@@ -114,16 +113,10 @@ class entryContainer extends React.Component {
     })
 
     setTimeout(function () {
-      store.dispatch({
+      this.props.dispatch({
         type: 'CLEAR_ALL_NOTIS'
       })
-
-      this.forceUpdate()
     }.bind(this), 1000)
-
-    this.forceUpdate()
-
-
   }
 
   handleCommentChanged(event) {
@@ -140,7 +133,7 @@ class entryContainer extends React.Component {
     const body = this.state.text_comment
 
     if (body == "") {
-      store.dispatch({
+      this.props.dispatch({
         type: 'ADD_NOTI',
         notis: [
           {
@@ -150,14 +143,10 @@ class entryContainer extends React.Component {
       })
 
       setTimeout(function () {
-        store.dispatch({
+        this.props.dispatch({
           type: 'CLEAR_ALL_NOTIS'
         })
-
-        this.forceUpdate()
       }.bind(this), 1000)
-
-      this.forceUpdate()
     }
     else {
       const menuId = event.target.value
@@ -192,12 +181,15 @@ class entryContainer extends React.Component {
   handleRatting(event) {
     const target = event.target.value
 
+    console.log("target ", target)
+
   }
 
   render() {
     return (
       <EntryPage
         data={this.props.data}
+        // notis={this.props.notis}
         text_comment={this.state.text_comment}
         handleAddOrder={this.handleAddOrder}
         handleAddComment={this.handleAddComment}
@@ -240,9 +232,17 @@ const ADD_COMMENT = gql`
   }
 `
 
+function stateSelector(state) {
+  return ({
+    orders: state.orders/* ,
+    notis: state.notis */
+  })
+}
+
 export default compose(
   page,
   withApollo,
+  connect(stateSelector),
   graphql(QUERY_ITEM, {
     options: ({ url: { query: { id } } }) => ({
       variables: {

@@ -1,18 +1,17 @@
 import React from 'react'
 import Head from 'next/head'
 import { compose } from 'recompose'
+import { connect } from 'react-redux'
 
 import page from '../hocs/page'
-import store from '../redux/store/SukiStore'
 import { Link } from '../routes'
 
 import manageOrderItems from '../utils/manageOrderItems'
 
 import MainStyle from './MainStyle'
 
-function OrderPage() {
+function OrderPage({ allOrders }) {
 
-    const allOrders = store.getState().allOrders
     var number = 0
 
     const items = manageOrderItems(allOrders)
@@ -71,11 +70,19 @@ class orderContainer extends React.Component {
 
     render() {
         return (
-            <OrderPage />
+            <OrderPage
+                allOrders={this.props.allOrders} />
         )
     }
 }
 
+function stateSelector(state) {
+    return ({
+        allOrders: state.allOrders
+    })
+}
+
 export default compose(
-    page
+    page,
+    connect(stateSelector),
 )(orderContainer)

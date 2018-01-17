@@ -1,16 +1,15 @@
 import React from 'react'
 import Head from 'next/head'
 import { compose } from 'recompose'
+import { connect } from 'react-redux'
 
 import page from '../hocs/page'
-import store from '../redux/store/SukiStore'
-import { Link } from '../routes'
+import { Router } from '../routes'
 
 import MainStyle from './MainStyle'
 
-function CheckbillPage() {
+function CheckbillPage({ allOrders, handleClose }) {
 
-    const allOrders = store.getState().allOrders
     var totalPrice = 0;
     const totalOrder = allOrders.length;
 
@@ -19,10 +18,6 @@ function CheckbillPage() {
             totalPrice += order.price
         })
     }
-
-    store.dispatch({
-        type: 'CLEAR_ALL_ORDER'
-    })
 
     return (
         <div>
@@ -46,9 +41,7 @@ function CheckbillPage() {
                 </div>
             </div >
             <div className="menu__order__btn center">
-                <Link route="home">
-                    <button className="">Close</button>
-                </Link>
+                <button onClick={handleClose.bind(this)} className="">Close</button>
             </div>
             <style jsx>{MainStyle}</style>
         </div >
@@ -59,11 +52,13 @@ class checkbillContainer extends React.Component {
     constructor(props) {
         super(props)
 
-        const orders = store.getState().orders
+        this.handleClose = this.handleClose.bind(this)
+
+        const orders = this.props.orders
 
         if (orders.length > 0) {
             orders.map(function (order) {
-                store.dispatch({
+                this.props.dispatch({
                     type: 'ADD_ALL_ORDER',
                     data: {
                         id: order.id,
@@ -73,21 +68,42 @@ class checkbillContainer extends React.Component {
                         amount: order.amount
                     }
                 })
-            })
+            }.bind(this))
 
-            store.dispatch({
+            this.props.dispatch({
                 type: 'CLEAR_ORDER'
             })
         }
     }
 
+    handleClose(event) {
+
+        this.props.dispatch({
+            type: 'CLEAR_ALL_ORDER'
+        })
+
+        Router.pushRoute('/')
+        window.scrollTo(0, 0)
+    }
+
     render() {
         return (
-            <CheckbillPage />
+            <CheckbillPage
+                allOrders={this.props.allOrders}
+                handleClose={this.handleClose}
+            />
         )
     }
 }
 
+function stateSelector(state) {
+    return ({
+        allOrders: state.allOrders,
+        orders: state.orders
+    })
+}
+
 export default compose(
-    page
+    page,
+    connect(stateSelector),
 )(checkbillContainer)

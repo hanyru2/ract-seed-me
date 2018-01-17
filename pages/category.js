@@ -4,6 +4,7 @@ import { compose } from 'recompose'
 
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
+import { connect } from 'react-redux'
 
 import withPreloader from '../hocs/withPreloader'
 import page from '../hocs/page'
@@ -11,15 +12,12 @@ import { Link } from '../routes'
 
 import { Router } from '../routes'
 
-import store from '../redux/store/SukiStore'
-
 import OrderList from './OrderList'
 import NotisMessage from './NotisMessage'
 import MainStyle from './MainStyle'
 
-function CategoryPage({ data, handleAddOrder, handleRemoveOrder, handleOrderNow }) {
+function CategoryPage({ data, notis, handleAddOrder, handleRemoveOrder, handleOrderNow, handleCheckbill }) {
     const { cate_menus } = data
-    const notis = store.getState().notis
 
     return (
         <div>
@@ -52,9 +50,7 @@ function CategoryPage({ data, handleAddOrder, handleRemoveOrder, handleOrderNow 
                     </div>
                     <div className="menu__order__btn">
                         <button className="btn__order__now" onClick={handleOrderNow.bind(this)}>Order Now</button>
-                        <Link route="checkbill">
-                            <button className="btn__check__bill">Check Bill</button>
-                        </Link>
+                        <button className="btn__check__bill" onClick={handleCheckbill.bind(this)}>Check Bill</button>
                     </div>
                     <OrderList
                         handleRemoveOrder={handleRemoveOrder} />
@@ -87,10 +83,7 @@ class categoryContainer extends React.Component {
         this.handleAddOrder = this.handleAddOrder.bind(this)
         this.handleRemoveOrder = this.handleRemoveOrder.bind(this)
         this.handleOrderNow = this.handleOrderNow.bind(this)
-
-        /*  store.dispatch({
-             type: 'CLEAR_ALL_NOTIS'
-         }) */
+        this.handleCheckbill = this.handleCheckbill.bind(this)
     }
 
     handleAddOrder(event) {
@@ -104,7 +97,7 @@ class categoryContainer extends React.Component {
         })
 
         if (select_menu.length != 0) {
-            store.dispatch({
+            this.props.dispatch({
                 type: 'ADD_ORDER',
                 data: {
                     id: new Date().getTime(),
@@ -115,41 +108,34 @@ class categoryContainer extends React.Component {
                 }
             })
 
-            store.dispatch({
+            this.props.dispatch({
                 type: 'CLEAR_ALL_NOTIS'
             })
-
-            this.forceUpdate()
         }
     }
 
     handleRemoveOrder(event) {
         const order_id = event.target.value
 
-        store.dispatch({
+        this.props.dispatch({
             type: 'REMOVE_ORDER',
             data: {
                 id: order_id
             }
         })
-
-        this.forceUpdate()
     }
 
     handleOrderNow(event) {
-        const allOrders = store.getState().allOrders
-        const orders = store.getState().orders
+        const allOrders = this.props.allOrders
+        const orders = this.props.orders
 
         // With route name and params
         /* Router.pushRoute('blog', { slug: 'hello-world' }) */
         // With route URL
         if (allOrders.length > 0 || orders.length > 0) {
-
-            const orders = store.getState().orders
-
             if (orders.length > 0) {
                 orders.map(function (order) {
-                    store.dispatch({
+                    this.props.dispatch({
                         type: 'ADD_ALL_ORDER',
                         data: {
                             id: order.id,
@@ -159,9 +145,9 @@ class categoryContainer extends React.Component {
                             amount: order.amount
                         }
                     })
-                })
+                }.bind(this))
 
-                store.dispatch({
+                this.props.dispatch({
                     type: 'CLEAR_ORDER'
                 })
             }
@@ -170,7 +156,7 @@ class categoryContainer extends React.Component {
             window.scrollTo(0, 0)
         }
         else {
-            store.dispatch({
+            this.props.dispatch({
                 type: 'ADD_NOTI',
                 notis: [
                     {
@@ -180,14 +166,55 @@ class categoryContainer extends React.Component {
             })
 
             setTimeout(function () {
-                store.dispatch({
+                this.props.dispatch({
                     type: 'CLEAR_ALL_NOTIS'
                 })
-
-                this.forceUpdate()
             }.bind(this), 1000)
+        }
+    }
 
-            this.forceUpdate()
+    handleCheckbill(event) {
+        const allOrders = this.props.allOrders
+        const orders = this.props.orders
+
+        if (allOrders.length > 0 || orders.length > 0) {
+            if (orders.length > 0) {
+                orders.map(function (order) {
+                    this.props.dispatch({
+                        type: 'ADD_ALL_ORDER',
+                        data: {
+                            id: order.id,
+                            menuId: order.menuId,
+                            name: order.name,
+                            price: order.price,
+                            amount: order.amount
+                        }
+                    })
+                }.bind(this))
+
+                this.props.dispatch({
+                    type: 'CLEAR_ORDER'
+                })
+            }
+
+            Router.pushRoute('/checkbill')
+            window.scrollTo(0, 0)
+        }
+        else {
+            this.props.dispatch({
+                type: 'ADD_NOTI',
+                notis: [
+                    {
+                        message: "Please add order."
+                    }
+                ]
+            })
+
+            setTimeout(function () {
+                this.props.dispatch({
+                    type: 'CLEAR_ALL_NOTIS'
+                })
+            }.bind(this), 1000)
         }
     }
 
@@ -195,16 +222,27 @@ class categoryContainer extends React.Component {
         return (
             <CategoryPage
                 data={this.props.data}
+                notis={this.props.notis}
                 handleAddOrder={this.handleAddOrder}
                 handleRemoveOrder={this.handleRemoveOrder}
                 handleOrderNow={this.handleOrderNow}
+                handleCheckbill={this.handleCheckbill}
             />
         )
     }
 }
 
+function stateSelector(state) {
+    return ({
+        allOrders: state.allOrders,
+        orders: state.orders,
+        notis: state.notis
+    })
+}
+
 export default compose(
     page,
+    connect(stateSelector),
     graphql(QUERY_MENU, {
         options: ({ url: { query: { id } } }) => ({
             variables: {
