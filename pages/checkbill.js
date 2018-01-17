@@ -53,27 +53,11 @@ class checkbillContainer extends React.Component {
         super(props)
 
         this.handleClose = this.handleClose.bind(this)
+        this.allOrders = this.props.allOrders
 
-        const orders = this.props.orders
-
-        if (orders.length > 0) {
-            orders.map(function (order) {
-                this.props.dispatch({
-                    type: 'ADD_ALL_ORDER',
-                    data: {
-                        id: order.id,
-                        menuId: order.menuId,
-                        name: order.name,
-                        price: order.price,
-                        amount: order.amount
-                    }
-                })
-            }.bind(this))
-
-            this.props.dispatch({
-                type: 'CLEAR_ORDER'
-            })
-        }
+        this.props.dispatch({
+            type: 'CLEAR_ALL_ORDER'
+        })
     }
 
     handleClose(event) {
@@ -89,7 +73,7 @@ class checkbillContainer extends React.Component {
     render() {
         return (
             <CheckbillPage
-                allOrders={this.props.allOrders}
+                allOrders={this.allOrders}
                 handleClose={this.handleClose}
             />
         )

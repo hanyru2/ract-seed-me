@@ -10,11 +10,11 @@ import withPreloader from '../hocs/withPreloader'
 import page from '../hocs/page'
 
 import calculateRating from '../utils/calculateRating'
-// import NotisMessage from './NotisMessage'
+import NotisMessage from './NotisMessage'
 
 import MainStyle from './MainStyle'
 
-function EntryPage({ data, /* notis, */ text_comment, handleAddOrder, handleAddComment, handleCommentChanged, handleRatting }) {
+function EntryPage({ data, notis, text_comment, handleAddOrder, handleAddComment, handleCommentChanged, handleRatting }) {
   const { menu_item } = data
 
   const img_src = "/static/images/menus/" + menu_item.images
@@ -25,7 +25,7 @@ function EntryPage({ data, /* notis, */ text_comment, handleAddOrder, handleAddC
       <Head>
         <title>{menu_item.name}</title>
       </Head>
-      {/* {notis.length > 0 && <NotisMessage notis={notis} />} */}
+      {notis.length > 0 && <NotisMessage notis={notis} />}
       <div className="suki__item">
         <div className="categories__item">
           <div className="item__img__box">
@@ -179,9 +179,11 @@ class entryContainer extends React.Component {
   }
 
   handleRatting(event) {
-    const target = event.target.value
+    const rating = event.target.value
+    const menu_id = this.props.data.menu_item.id
 
-    console.log("target ", target)
+    console.log("menu_id :", menu_id)
+    console.log("rating :", rating)
 
   }
 
@@ -189,7 +191,7 @@ class entryContainer extends React.Component {
     return (
       <EntryPage
         data={this.props.data}
-        // notis={this.props.notis}
+        notis={this.props.notis}
         text_comment={this.state.text_comment}
         handleAddOrder={this.handleAddOrder}
         handleAddComment={this.handleAddComment}
@@ -234,8 +236,8 @@ const ADD_COMMENT = gql`
 
 function stateSelector(state) {
   return ({
-    orders: state.orders/* ,
-    notis: state.notis */
+    orders: state.orders,
+    notis: state.notis
   })
 }
 

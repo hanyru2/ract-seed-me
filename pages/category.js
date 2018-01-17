@@ -48,9 +48,14 @@ function CategoryPage({ data, notis, handleAddOrder, handleRemoveOrder, handleOr
                     <div className="menu__order__title">
                         <h3>My Orders</h3>
                     </div>
+                    <div className="menu__order__view">
+                        <Link route="order">
+                            <button>View All Orders</button>
+                        </Link>
+                    </div>
                     <div className="menu__order__btn">
-                        <button className="btn__order__now" onClick={handleOrderNow.bind(this)}>Order Now</button>
-                        <button className="btn__check__bill" onClick={handleCheckbill.bind(this)}>Check Bill</button>
+                        <button onClick={handleOrderNow.bind(this)}>Order Now</button>
+                        <button onClick={handleCheckbill.bind(this)}>Check Bill</button>
                     </div>
                     <OrderList
                         handleRemoveOrder={handleRemoveOrder} />
@@ -126,13 +131,14 @@ class categoryContainer extends React.Component {
     }
 
     handleOrderNow(event) {
-        const allOrders = this.props.allOrders
+        // const allOrders = this.props.allOrders
         const orders = this.props.orders
 
         // With route name and params
         /* Router.pushRoute('blog', { slug: 'hello-world' }) */
         // With route URL
-        if (allOrders.length > 0 || orders.length > 0) {
+        // if (allOrders.length > 0 || orders.length > 0) {
+        if (orders.length > 0) {
             if (orders.length > 0) {
                 orders.map(function (order) {
                     this.props.dispatch({
@@ -205,7 +211,7 @@ class categoryContainer extends React.Component {
                 type: 'ADD_NOTI',
                 notis: [
                     {
-                        message: "Please add order."
+                        message: "No order(s) to check bill."
                     }
                 ]
             })

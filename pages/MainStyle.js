@@ -32,11 +32,22 @@ export default css`
     text-align: center;
     border-bottom: 1px solid;
   }
+  .menu__order__btn, .menu__order__view {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .menu__order__view>button {
+    width: 90%;
+  }
+  .menu__order__btn {
+    border-bottom: 1px solid;
+    padding-bottom: 15px;
+  }
   .menu__order__btn>button {
     width: 45%;
-    margin-left: 6px;
+    /* margin-left: 6px; */
   }
-  .menu__order__detail, .menu__order__btn, .order__all {
+  .menu__order__detail, .order__all {
     margin-top: 15px;
   }
   .nav__categories {

@@ -1,4 +1,4 @@
-export default function manageOrderorders(allOrders) {
+export default function manageOrderItems(allOrders) {
 
     var items_name = Array()
     var orders = Array()

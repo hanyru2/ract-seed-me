@@ -9,14 +9,12 @@ import logger from '../middlewares/logger'
 
 import orderUpdater from './orderUpdater'
 import allOrderUpdater from './allOrderUpdater'
-import billUpdater from './billUpdater'
-// import filterUpdater from './filterUpdater'
+
 import notisUpdater from './notisUpdater'
 
 const rootStateUpdater = combineStateUpdater({
   orders: orderUpdater,
   allOrders: allOrderUpdater,
-  bill: billUpdater,
   notis: notisUpdater
 })
 
