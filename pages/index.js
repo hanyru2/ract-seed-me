@@ -21,7 +21,7 @@ function HomePage({ data }) {
         {all_menus.map(function (menu) {
           const img_src = "/static/images/menus/" + menu.images
           return (
-            <div className="img__index">
+            <div key={menu.id} className="img__index">
               <img src={img_src} />
             </div>
           )
@@ -34,7 +34,8 @@ function HomePage({ data }) {
 
 const QUERY_MENU = gql`
   query{
-        all_menus {
+    all_menus {
+      id
       images
     }
   }

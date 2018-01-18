@@ -19,6 +19,7 @@ import MainStyle from './MainStyle'
 function EntryPage({ data, text_comment, handleAddOrder, handleAddComment, handleCommentChanged, handleRatting }) {
 
   const { menu_item } = data
+  
   const img_src = "/static/images/menus/" + menu_item.images
   const rating = calculateRating(menu_item.rating)
 
