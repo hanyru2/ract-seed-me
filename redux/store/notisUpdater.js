@@ -1,7 +1,7 @@
 const emptyList = []
 
 export default function notisUpdater(state = emptyList, action) {
-  const { type } = action
+  const { type, notis } = action
 
   if (action.loading !== undefined) {
     return action.loading === true
@@ -15,7 +15,12 @@ export default function notisUpdater(state = emptyList, action) {
 
   switch (type) {
     case 'ADD_NOTI':
-      return state.concat(action.notis)
+      return state.concat(notis)
+
+      case 'CLEAR_NOTIS':
+      return state.filter(function(data){
+        return data.id !== notis[0].id
+      })
 
     case 'CLEAR_ALL_NOTIS':
       return emptyList
