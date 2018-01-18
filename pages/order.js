@@ -3,19 +3,19 @@ import Head from 'next/head'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 
-import page from '../hocs/page'
-import { Link } from '../routes'
 import { Router } from '../routes'
+import page from '../hocs/page'
+import withStoreData from '../hocs/withStoreData'
 
-import NotisMessage from './NotisMessage'
 import manageOrderItems from '../utils/manageOrderItems'
+import addNotis from './addNotis'
 
 import MainStyle from './MainStyle'
 
-function OrderPage({ allOrders, notis, handleCheckbill }) {
 
-    var number = 0
+function OrderPage({ allOrders, handleCheckbill }) {
 
+    let number = 0
     const items = manageOrderItems(allOrders)
 
     return (
@@ -23,7 +23,6 @@ function OrderPage({ allOrders, notis, handleCheckbill }) {
             <Head>
                 <title>React Suki</title>
             </Head>
-            {notis.length > 0 && <NotisMessage notis={notis} />}
             <div className="order__all">
                 <table>
                     <thead>
@@ -54,9 +53,7 @@ function OrderPage({ allOrders, notis, handleCheckbill }) {
                 </table>
             </div>
             <div className="menu__order__btn center">
-                <Link route="category" params={{ id: 1 }}>
-                    <button className="">Back</button>
-                </Link>
+                <button onClick={(e) => { window.history.back() }} className="">Back</button>
                 <button onClick={handleCheckbill.bind(this)} className="">Check Bill</button>
             </div>
             <style jsx>{MainStyle}</style>
@@ -73,42 +70,18 @@ class orderContainer extends React.Component {
 
     handleCheckbill(event) {
         const allOrders = this.props.allOrders
-        const orders = this.props.orders
 
-        if (allOrders.length > 0 || orders.length > 0) {
-            if (orders.length > 0) {
-                orders.map(function (order) {
-                    this.props.dispatch({
-                        type: 'ADD_ALL_ORDER',
-                        data: {
-                            id: order.id,
-                            menuId: order.menuId,
-                            name: order.name,
-                            price: order.price,
-                            amount: order.amount
-                        }
-                    })
-                }.bind(this))
-            }
+        if (allOrders.length > 0) {
+            this.props.dispatch({
+                type: 'CLEAR_ORDER'
+            })
 
             Router.pushRoute('/checkbill')
             window.scrollTo(0, 0)
         }
         else {
-            this.props.dispatch({
-                type: 'ADD_NOTI',
-                notis: [
-                    {
-                        message: "No order(s) to check bill."
-                    }
-                ]
-            })
-
-            setTimeout(function () {
-                this.props.dispatch({
-                    type: 'CLEAR_ALL_NOTIS'
-                })
-            }.bind(this), 1000)
+            const message = "No order(s) to check bill."
+            addNotis(this.props, message)
         }
     }
 
@@ -116,7 +89,6 @@ class orderContainer extends React.Component {
         return (
             <OrderPage
                 allOrders={this.props.allOrders}
-                notis={this.props.notis}
                 handleCheckbill={this.handleCheckbill}
             />
         )
@@ -126,12 +98,12 @@ class orderContainer extends React.Component {
 function stateSelector(state) {
     return ({
         allOrders: state.allOrders,
-        orders: state.orders,
-        notis: state.notis
+        orders: state.orders
     })
 }
 
 export default compose(
     page,
+    withStoreData,
     connect(stateSelector),
 )(orderContainer)

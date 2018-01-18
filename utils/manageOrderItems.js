@@ -1,11 +1,11 @@
 export default function manageOrderItems(allOrders) {
 
-    var items_name = Array()
-    var orders = Array()
-    var num = 0
-    var allPrice = 0
+    let items_name = Array()
+    let orders = Array()
+    let num = 0
+    let allPrice = 0
 
-    for (var i = 0; i < allOrders.length; i++) {
+    for (let i = 0; i < allOrders.length; i++) {
         allPrice += allOrders[i].price
         if (items_name.indexOf(allOrders[i].name) == -1) {
             orders[num] = {}
@@ -19,8 +19,8 @@ export default function manageOrderItems(allOrders) {
         }
     }
 
-    for (var j = 0; j < orders.length; j++) {
-        for (var k = 0; k < allOrders.length; k++) {
+    for (let j = 0; j < orders.length; j++) {
+        for (let k = 0; k < allOrders.length; k++) {
             if (orders[j].name == allOrders[k].name) {
                 orders[j].amount += allOrders[k].amount
                 orders[j].sumprice += allOrders[k].price

@@ -13,7 +13,7 @@ server.use(cors())
 server.use(
   '/graphql',
   bodyParser.json(),
-  graphqlExpress(function() {
+  graphqlExpress(function () {
     return {
       schema,
       context: {

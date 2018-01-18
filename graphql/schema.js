@@ -10,6 +10,7 @@ const typeDefs = `
     categories: [CategoryType]
     cate_menus(cate_id: Int): CategoryType
     menu_item(menu_id: Int!): MenuType
+    all_menus: [MenuType]
   }
   type CategoryType {
     id: Int
@@ -34,7 +35,7 @@ const typeDefs = `
     five: Int
   }
   type Mutation {
-    add_comment(body:String!,menuId:Int!): CommentType
+    add_comment(body: String!,menuId: Int!): CommentType
   }
   type CommentType {
     id: Int
@@ -56,6 +57,10 @@ const resolvers = {
     },
     menu_item: async (_, { menu_id }) => {
       const { data } = await fetchAPI(`/menus/${menu_id}?_embed=comments`)
+      return data
+    },
+    all_menus: async () => {
+      const { data } = await fetchAPI(`/menus`)
       return data
     }
   },

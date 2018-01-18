@@ -4,13 +4,14 @@ import { compose } from 'recompose'
 import { connect } from 'react-redux'
 
 import page from '../hocs/page'
+import withStoreData from '../hocs/withStoreData'
 import { Router } from '../routes'
 
 import MainStyle from './MainStyle'
 
 function CheckbillPage({ allOrders, handleClose }) {
 
-    var totalPrice = 0;
+    let totalPrice = 0;
     const totalOrder = allOrders.length;
 
     if (allOrders.length > 0) {
@@ -89,5 +90,6 @@ function stateSelector(state) {
 
 export default compose(
     page,
+    withStoreData,
     connect(stateSelector),
 )(checkbillContainer)

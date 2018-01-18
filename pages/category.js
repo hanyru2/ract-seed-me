@@ -1,22 +1,22 @@
 import React from 'react'
 import Head from 'next/head'
 import { compose } from 'recompose'
-
+import { connect } from 'react-redux'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
-import { connect } from 'react-redux'
+import { Link, Router } from '../routes'
 
-import withPreloader from '../hocs/withPreloader'
 import page from '../hocs/page'
-import { Link } from '../routes'
+import withPreloader from '../hocs/withPreloader'
+import withStoreData from '../hocs/withStoreData'
 
-import { Router } from '../routes'
-
+import addNotis from './addNotis'
 import OrderList from './OrderList'
-import NotisMessage from './NotisMessage'
+
 import MainStyle from './MainStyle'
 
-function CategoryPage({ data, notis, handleAddOrder, handleRemoveOrder, handleOrderNow, handleCheckbill }) {
+function CategoryPage({ data, handleAddOrder, handleRemoveOrder, handleOrderNow, handleCheckbill, handleViewAllOrders }) {
+
     const { cate_menus } = data
 
     return (
@@ -24,12 +24,10 @@ function CategoryPage({ data, notis, handleAddOrder, handleRemoveOrder, handleOr
             <Head>
                 <title>React Suki</title>
             </Head>
-            {notis.length > 0 && <NotisMessage notis={notis} />}
             <div className="suki__item">
                 <div className="categories__item">
                     {cate_menus.menus.map(function (menu) {
                         const img_src = "/static/images/menus/" + menu.images
-
                         return (
                             <div key={menu.id} className="menu__item">
                                 <Link route="entry" params={{ id: menu.id }}>
@@ -49,9 +47,7 @@ function CategoryPage({ data, notis, handleAddOrder, handleRemoveOrder, handleOr
                         <h3>My Orders</h3>
                     </div>
                     <div className="menu__order__view">
-                        <Link route="order">
-                            <button>View All Orders</button>
-                        </Link>
+                        <button onClick={handleViewAllOrders.bind(this)}>View All Orders</button>
                     </div>
                     <div className="menu__order__btn">
                         <button onClick={handleOrderNow.bind(this)}>Order Now</button>
@@ -89,6 +85,7 @@ class categoryContainer extends React.Component {
         this.handleRemoveOrder = this.handleRemoveOrder.bind(this)
         this.handleOrderNow = this.handleOrderNow.bind(this)
         this.handleCheckbill = this.handleCheckbill.bind(this)
+        this.handleViewAllOrders = this.handleViewAllOrders.bind(this)
     }
 
     handleAddOrder(event) {
@@ -131,13 +128,11 @@ class categoryContainer extends React.Component {
     }
 
     handleOrderNow(event) {
-        // const allOrders = this.props.allOrders
         const orders = this.props.orders
 
         // With route name and params
         /* Router.pushRoute('blog', { slug: 'hello-world' }) */
         // With route URL
-        // if (allOrders.length > 0 || orders.length > 0) {
         if (orders.length > 0) {
             if (orders.length > 0) {
                 orders.map(function (order) {
@@ -162,65 +157,37 @@ class categoryContainer extends React.Component {
             window.scrollTo(0, 0)
         }
         else {
-            this.props.dispatch({
-                type: 'ADD_NOTI',
-                notis: [
-                    {
-                        message: "Please add order."
-                    }
-                ]
-            })
-
-            setTimeout(function () {
-                this.props.dispatch({
-                    type: 'CLEAR_ALL_NOTIS'
-                })
-            }.bind(this), 1000)
+            const message = "Please add order."
+            addNotis(this.props, message)
         }
     }
 
     handleCheckbill(event) {
         const allOrders = this.props.allOrders
-        const orders = this.props.orders
 
-        if (allOrders.length > 0 || orders.length > 0) {
-            if (orders.length > 0) {
-                orders.map(function (order) {
-                    this.props.dispatch({
-                        type: 'ADD_ALL_ORDER',
-                        data: {
-                            id: order.id,
-                            menuId: order.menuId,
-                            name: order.name,
-                            price: order.price,
-                            amount: order.amount
-                        }
-                    })
-                }.bind(this))
-
-                this.props.dispatch({
-                    type: 'CLEAR_ORDER'
-                })
-            }
+        if (allOrders.length > 0) {
+            this.props.dispatch({
+                type: 'CLEAR_ORDER'
+            })
 
             Router.pushRoute('/checkbill')
             window.scrollTo(0, 0)
         }
         else {
-            this.props.dispatch({
-                type: 'ADD_NOTI',
-                notis: [
-                    {
-                        message: "No order(s) to check bill."
-                    }
-                ]
-            })
+            const message = "No order(s) to check bill."
+            addNotis(this.props, message)
+        }
+    }
 
-            setTimeout(function () {
-                this.props.dispatch({
-                    type: 'CLEAR_ALL_NOTIS'
-                })
-            }.bind(this), 1000)
+    handleViewAllOrders() {
+        const allOrders = this.props.allOrders
+        if (allOrders.length > 0) {
+            Router.pushRoute('/order')
+            window.scrollTo(0, 0)
+        }
+        else {
+            const message = "No order(s) to view."
+            addNotis(this.props, message)
         }
     }
 
@@ -228,11 +195,11 @@ class categoryContainer extends React.Component {
         return (
             <CategoryPage
                 data={this.props.data}
-                notis={this.props.notis}
                 handleAddOrder={this.handleAddOrder}
                 handleRemoveOrder={this.handleRemoveOrder}
                 handleOrderNow={this.handleOrderNow}
                 handleCheckbill={this.handleCheckbill}
+                handleViewAllOrders={this.handleViewAllOrders}
             />
         )
     }
@@ -241,13 +208,13 @@ class categoryContainer extends React.Component {
 function stateSelector(state) {
     return ({
         allOrders: state.allOrders,
-        orders: state.orders,
-        notis: state.notis
+        orders: state.orders
     })
 }
 
 export default compose(
     page,
+    withStoreData,
     connect(stateSelector),
     graphql(QUERY_MENU, {
         options: ({ url: { query: { id } } }) => ({

@@ -4,6 +4,18 @@ export default css`
   .suki__item {
     width: 100%;
   }
+  .img__index {
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    min-height: 200px;
+    position: relative;
+    width: 14%;
+  }
+  .img__index>img {
+    max-width: 100%;
+    height: auto;
+  }
   .categories__item {
     width: 69%;
     min-height: 800px;
@@ -45,7 +57,6 @@ export default css`
   }
   .menu__order__btn>button {
     width: 45%;
-    /* margin-left: 6px; */
   }
   .menu__order__detail, .order__all {
     margin-top: 15px;
