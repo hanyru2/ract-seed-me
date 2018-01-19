@@ -1,11 +1,8 @@
 import React from 'react'
-// import { compose } from 'recompose'
 
-import store from '../redux/store/SukiStore'
 import MainStyle from './MainStyle'
 
-export default function orderList({ handleRemoveOrder }) {
-    const orders = store.getState().orders
+export default function orderList({ orders, handleRemoveOrder }) {
     return (
         <div className="menu__order__detail">
             {orders.map(function (order) {

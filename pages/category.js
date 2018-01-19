@@ -15,7 +15,7 @@ import OrderList from './OrderList'
 
 import MainStyle from './MainStyle'
 
-function CategoryPage({ data, handleAddOrder, handleRemoveOrder, handleOrderNow, handleCheckbill, handleViewAllOrders }) {
+function CategoryPage({ data, orders, handleAddOrder, handleRemoveOrder, handleOrderNow, handleCheckbill, handleViewAllOrders }) {
 
     const { cate_menus } = data
 
@@ -53,7 +53,11 @@ function CategoryPage({ data, handleAddOrder, handleRemoveOrder, handleOrderNow,
                         <button onClick={handleOrderNow.bind(this)}>Order Now</button>
                         <button onClick={handleCheckbill.bind(this)}>Check Bill</button>
                     </div>
+                    <div className="menu__order__btn">
+                        <span>Total : {orders.length}</span>
+                    </div>
                     <OrderList
+                        orders={orders}
                         handleRemoveOrder={handleRemoveOrder} />
                 </div>
             </div>
@@ -195,6 +199,7 @@ class categoryContainer extends React.Component {
         return (
             <CategoryPage
                 data={this.props.data}
+                orders={this.props.orders}
                 handleAddOrder={this.handleAddOrder}
                 handleRemoveOrder={this.handleRemoveOrder}
                 handleOrderNow={this.handleOrderNow}
